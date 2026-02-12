@@ -1,11 +1,21 @@
 import Foundation
 
-struct MoodEntry: Codable {
+struct MoodEntry: Identifiable, Codable, Sendable {
+    let id: UUID
     let emoji: String
     let timestamp: Date
+    let note: String?
+    
+    init(id: UUID = UUID(), emoji: String, timestamp: Date, note: String? = nil) {
+        self.id = id
+        self.emoji = emoji
+        self.timestamp = timestamp
+        self.note = note
+    }
 }
 
-final class MoodDataStore: @unchecked Sendable {
+@MainActor
+final class MoodDataStore: Sendable {
     static let shared = MoodDataStore()
     private let key = "mood_entries"
     

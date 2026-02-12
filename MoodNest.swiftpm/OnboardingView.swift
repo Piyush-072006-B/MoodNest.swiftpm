@@ -1,136 +1,169 @@
 import SwiftUI
 
 struct OnboardingView: View {
-    @Binding var showMoodCheck: Bool
     @State private var currentPage = 0
     @State private var selectedCards: [OnboardingCard] = []
+    var onComplete: () -> Void
     
-    // Larger pool of motivational thoughts and mental health vocabulary
+    // 10 motivational thoughts and mental health concepts
     let allOnboardingContent = [
         OnboardingCard(
             title: "Mindfulness",
             description: "Take a moment to check in with yourself. Your mental health matters.",
-            emoji: "🧘‍♀️"
+            emoji: "🧘‍♀️",
+            color: .moodSkyBlue
         ),
         OnboardingCard(
             title: "Resilience",
             description: "Track your emotions and build emotional awareness over time.",
-            emoji: "💪"
+            emoji: "💪",
+            color: .moodMintGreen
         ),
         OnboardingCard(
             title: "Self-Care",
             description: "Understanding your moods is the first step to better well-being.",
-            emoji: "💚"
+            emoji: "💚",
+            color: .moodSageGreen
         ),
         OnboardingCard(
             title: "Gratitude",
             description: "Practicing gratitude can shift your perspective and improve your mood.",
-            emoji: "🙏"
+            emoji: "🙏",
+            color: .moodButterYellow
         ),
         OnboardingCard(
             title: "Emotional Intelligence",
             description: "Recognizing and naming your emotions helps you manage them better.",
-            emoji: "🧠"
+            emoji: "🧠",
+            color: .moodLavender
         ),
         OnboardingCard(
             title: "Self-Compassion",
             description: "Be kind to yourself. You deserve the same compassion you give others.",
-            emoji: "🤗"
+            emoji: "🤗",
+            color: .moodPeachyPink
         ),
         OnboardingCard(
             title: "Present Moment",
             description: "The present moment is all we truly have. Stay grounded in the now.",
-            emoji: "🌸"
+            emoji: "🌸",
+            color: .moodSoftCoral
         ),
         OnboardingCard(
             title: "Inner Peace",
             description: "Finding calm within yourself is a powerful tool for mental wellness.",
-            emoji: "☮️"
+            emoji: "☮️",
+            color: .moodSkyBlue
         ),
         OnboardingCard(
             title: "Growth Mindset",
             description: "Every challenge is an opportunity to learn and grow stronger.",
-            emoji: "🌱"
+            emoji: "🌱",
+            color: .moodSageGreen
         ),
         OnboardingCard(
             title: "Emotional Balance",
             description: "All emotions are valid. Balance comes from acknowledging them all.",
-            emoji: "⚖️"
+            emoji: "⚖️",
+            color: .moodLavender
         )
     ]
     
     var body: some View {
-        VStack(spacing: 30) {
-            Spacer()
+        ZStack {
+            // Decorative background
+            DecorativeBackground()
             
-            if !selectedCards.isEmpty {
-                // Emoji
-                Text(selectedCards[currentPage].emoji)
-                    .font(.system(size: 100))
-                    .padding(.bottom, 20)
-                    .transition(.scale.combined(with: .opacity))
+            VStack(spacing: 0) {
+                Spacer(minLength: 60)
                 
-                // Title
-                Text(selectedCards[currentPage].title)
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                if !selectedCards.isEmpty {
+                    // Card content
+                    VStack(spacing: 32) {
+                        // Emoji
+                        Text(selectedCards[currentPage].emoji)
+                            .font(.system(size: 100))
+                            .transition(.scale.combined(with: .opacity))
+                            .id("emoji-\(currentPage)")
+                        
+                        // Title
+                        Text(selectedCards[currentPage].title)
+                            .font(.system(size: 36, weight: .bold))
+                            .foregroundColor(.black)
+                            .transition(.move(edge: .trailing).combined(with: .opacity))
+                            .id("title-\(currentPage)")
+                        
+                        // Description Card
+                        Text(selectedCards[currentPage].description)
+                            .font(.system(size: 18))
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.black.opacity(0.8))
+                            .padding(.horizontal, 40)
+                            .padding(.vertical, 24)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(selectedCards[currentPage].color.opacity(0.2))
+                            )
+                            .padding(.horizontal, 32)
+                            .transition(.opacity)
+                            .id("description-\(currentPage)")
+                    }
+                    .animation(.spring(response: 0.6, dampingFraction: 0.8), value: currentPage)
+                }
                 
-                // Description
-                Text(selectedCards[currentPage].description)
-                    .font(.body)
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal, 40)
-                    .transition(.opacity)
-            }
-            
-            Spacer()
-            
-            // Page Indicators
-            HStack(spacing: 8) {
-                ForEach(0..<selectedCards.count, id: \.self) { index in
-                    Circle()
-                        .fill(index == currentPage ? Color.blue : Color.gray.opacity(0.3))
-                        .frame(width: 8, height: 8)
-                        .animation(.easeInOut, value: currentPage)
-                }
-            }
-            .padding(.bottom, 20)
-            
-            // Button
-            Button(action: {
-                if currentPage < selectedCards.count - 1 {
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                        currentPage += 1
-                    }
-                } else {
-                    withAnimation {
-                        showMoodCheck = true
+                Spacer(minLength: 60)
+                
+                // Page Indicators
+                HStack(spacing: 10) {
+                    ForEach(0..<selectedCards.count, id: \.self) { index in
+                        Circle()
+                            .fill(index == currentPage ? Color.moodSkyBlue : Color.gray.opacity(0.3))
+                            .frame(width: 10, height: 10)
+                            .scaleEffect(index == currentPage ? 1.2 : 1.0)
+                            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentPage)
                     }
                 }
-            }) {
-                Text(currentPage < selectedCards.count - 1 ? "Next" : "Get Started")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(12)
-                    .padding(.horizontal, 40)
+                .padding(.bottom, 32)
+                
+                // Button
+                PrimaryButton(
+                    title: currentPage < selectedCards.count - 1 ? "Next" : "Get Started",
+                    action: handleButtonTap,
+                    isEnabled: true
+                )
+                .padding(.horizontal, 32)
+                .padding(.bottom, 40)
             }
-            .padding(.bottom, 40)
         }
         .onAppear {
             // Randomly select 3 non-repeating cards
             selectedCards = allOnboardingContent.shuffled().prefix(3).map { $0 }
         }
     }
+    
+    func handleButtonTap() {
+        if currentPage < selectedCards.count - 1 {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                currentPage += 1
+            }
+        } else {
+            // Mark onboarding complete and dismiss
+            OnboardingManager.markOnboardingComplete()
+            withAnimation {
+                onComplete()
+            }
+        }
+    }
 }
 
-struct OnboardingCard {
+struct OnboardingCard: Identifiable {
+    let id = UUID()
     let title: String
     let description: String
     let emoji: String
+    let color: Color
+}
+
+#Preview {
+    OnboardingView(onComplete: {})
 }
